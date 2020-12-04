@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quizzler/quizBrain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() => runApp(Quizzler());
 
@@ -24,7 +26,36 @@ class QuizPage extends StatefulWidget {
   _QuizPageState createState() => _QuizPageState();
 }
 
+QuizBrain quizBrain = QuizBrain();
+
 class _QuizPageState extends State<QuizPage> {
+  List<Widget> answersIcon = [];
+  void navigate(bool ans) {
+    setState(() {
+      if (quizBrain.finished == true) {
+        Alert(
+          context: context,
+          title: 'Finished!',
+          desc: 'You\'ve reached the end of the quiz.',
+        ).show();
+        quizBrain.reset();
+        answersIcon = [];
+        return;
+      }
+      if (ans == quizBrain.getAns())
+        answersIcon.add(Icon(
+          Icons.check,
+          color: Colors.green,
+        ));
+      else
+        answersIcon.add(Icon(
+          Icons.close,
+          color: Colors.red,
+        ));
+      quizBrain.inc();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,7 +68,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                'This is where the question text will go.',
+                quizBrain.getText(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -61,7 +92,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                //The user picked true.
+                navigate(true);
               },
             ),
           ),
@@ -79,12 +110,14 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                //The user picked false.
+                navigate(false);
               },
             ),
           ),
         ),
-        //TODO: Add a Row here as your score keeper
+        Row(
+          children: answersIcon,
+        ),
       ],
     );
   }
